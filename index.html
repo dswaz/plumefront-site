@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>PlumeFront | Wildfire, Weather &amp; Air Quality Map</title>
+  <meta name="description" content="Live wildfire incidents, fire perimeters, smoke plumes, weather, wind, and air quality on one map. Built entirely on free, authoritative open data.">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header id="mainHeader">
+    <div class="header-left">
+      <div class="header-text">
+        <h1>PlumeFront</h1>
+        <p class="tagline">Live fires, smoke &amp; air quality</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span id="dataStatus" class="data-status" role="status" aria-live="polite" title="Data freshness">Loading data&hellip;</span>
+    </div>
+  </header>
+
+  <div id="mapLayout">
+
+    <aside id="sidebar">
+      <div class="sidebar-handle" id="sheetHandle" role="button" aria-label="Expand or collapse panel" aria-expanded="false" tabindex="0"><span></span></div>
+
+      <div class="sidebar-topbar">
+        <div class="search-row">
+          <div class="search-wrapper">
+            <div class="search-icon-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input type="text" id="searchInput" placeholder="Search a city or place&hellip;"
+              aria-label="Search for a place" autocomplete="off"
+              role="combobox" aria-expanded="false" aria-controls="searchDropdown" aria-autocomplete="list">
+            <div id="searchSpinner" class="spinner" style="display:none;"></div>
+            <button id="clearSearchBtn" class="clear-input" title="Clear" style="display:none;">&times;</button>
+            <div id="searchDropdown" class="search-dropdown" role="listbox" aria-label="Search results" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sidebarContent">
+
+        <!-- Overview: fires in the current map view -->
+        <section id="overviewPanel">
+          <div id="fireStats" class="fire-stats">
+            <div class="stat-box"><span class="stat-num" id="statFires">&ndash;</span><span class="stat-label">Fires in view</span></div>
+            <div class="stat-box"><span class="stat-num" id="statAcres">&ndash;</span><span class="stat-label">Acres burning</span></div>
+            <div class="stat-box"><span class="stat-num" id="statAlerts">&ndash;</span><span class="stat-label">Warnings</span></div>
+          </div>
+          <div class="list-header">
+            <div class="list-title-row">
+              <h2 id="listTitle">Fires in this view</h2>
+              <span class="src">NIFC</span>
+            </div>
+            <span class="hint">Move the map to update &middot; tap a fire or any spot for details</span>
+          </div>
+          <div id="fireList" class="fire-list" aria-live="polite"></div>
+        </section>
+
+        <!-- Detail: fire info / conditions at a point -->
+        <section id="detailPanel" style="display:none;">
+          <button id="closeDetailBtn" class="close-btn" type="button" aria-label="Close details" title="Close">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+          <div id="detailBody"></div>
+        </section>
+
+      </div>
+
+      <footer class="sidebar-footer">
+        Data: <a href="https://data-nifc.opendata.arcgis.com/" target="_blank" rel="noopener">NIFC</a>,
+        <a href="https://www.weather.gov/" target="_blank" rel="noopener">NWS</a>,
+        <a href="https://www.ospo.noaa.gov/products/land/hms.html" target="_blank" rel="noopener">NOAA HMS</a>,
+        <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open&#8209;Meteo</a>
+      </footer>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="layerChips" role="group" aria-label="Map layers">
+        <button class="chip" data-layer="fires" type="button">
+          <svg class="chip-icon" viewBox="-30 -30 508 572" width="13" height="13" aria-hidden="true">
+            <path d="M159.3 5.4c7.8-7.3 19.9-7.2 27.7 .1c27.6 25.9 53.5 53.8 77.7 84c11-14.4 23.5-30.1 37-42.9c7.9-7.4 20.1-7.4 28 .1c34.6 33 63.9 76.6 84.5 118c20.3 40.8 33.8 82.5 33.8 111.9C448 404.2 348.2 512 224 512C98.4 512 0 404.1 0 276.5c0-38.4 17.8-85.3 45.4-131.7C73.3 97.7 112.7 48.6 159.3 5.4z" fill="#e8391d"/>
+            <path d="M225.7 416c25.3 0 47.7-7 68.8-21c42.1-29.4 53.4-88.2 28.1-134.4c-4.5-9-16-9.6-22.5-2l-25.2 29.3c-6.6 7.6-18.5 7.4-24.7-.5c-16.5-21-46-58.5-62.8-79.8c-6.3-8-18.3-8.1-24.7-.1c-33.8 42.5-50.8 69.3-50.8 99.4C112 375.4 162.6 416 225.7 416z" fill="#ffd166"/>
+          </svg>
+          <span class="chip-label">Fires</span>
+        </button>
+        <button class="chip" data-layer="perimeters" type="button">
+          <span class="chip-dot perimeters" aria-hidden="true"></span><span class="chip-label">Burned area</span>
+        </button>
+        <button class="chip" data-layer="smoke" type="button">
+          <svg class="chip-icon" viewBox="0 0 24 24" width="15" height="15" fill="#b9bdd0" aria-hidden="true">
+            <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+          </svg>
+          <span class="chip-label">Smoke</span>
+        </button>
+        <button class="chip" data-layer="alerts" type="button">
+          <svg class="chip-icon" viewBox="0 0 24 24" width="14" height="14" fill="#ffb020" aria-hidden="true">
+            <path d="M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/>
+          </svg>
+          <span class="chip-label">Warnings</span>
+        </button>
+        <button class="chip" data-layer="aqi" type="button" title="EPA AirNow contours â€” lower 48 states only">
+          <span class="chip-dot aqi" aria-hidden="true"></span><span class="chip-label">Air quality</span>
+        </button>
+      </div>
+      <button id="basemapChip" class="basemap-btn" type="button" title="Switch map style (Streets / Dark / Satellite)" aria-label="Switch map style">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
+          <path d="M9 2L3 5v17l6-3 6 3 6-3V2l-6 3-6-3zM9 2v15M15 5v15"/>
+        </svg>
+        <span>Map</span>
+      </button>
+      <button id="mapLocateBtn" class="map-locate-btn" type="button" title="Find fires near me" aria-label="Find fires near me">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+          <circle cx="12" cy="12" r="8"></circle>
+        </svg>
+      </button>
+      <button id="expandMapBtn" class="expand-map-btn" type="button" aria-label="Expand map" title="Expand map">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+      </button>
+      <div id="map" role="application" aria-label="Wildfire, smoke, and weather map"></div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
