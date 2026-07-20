@@ -130,6 +130,19 @@
         </svg>
         <span>Map</span>
       </button>
+      <div id="aqiLegend" class="aqi-legend" hidden role="group" aria-label="Air quality color scale">
+        <div class="aqi-legend-head">
+          <span class="aqi-legend-title">Air quality</span>
+          <button id="aqiLegendClose" class="aqi-legend-close" type="button" aria-label="Hide legend" title="Hide legend">&times;</button>
+        </div>
+        <div class="aqi-legend-row"><span style="background:#00e400"></span>Good</div>
+        <div class="aqi-legend-row"><span style="background:#ffff00"></span>Moderate</div>
+        <div class="aqi-legend-row"><span style="background:#ff7e00"></span>Sensitive groups</div>
+        <div class="aqi-legend-row"><span style="background:#ff0000"></span>Unhealthy</div>
+        <div class="aqi-legend-row"><span style="background:#8f3f97"></span>Very unhealthy</div>
+        <div class="aqi-legend-row"><span style="background:#7e0023"></span>Hazardous</div>
+        <div class="aqi-legend-src">EPA AirNow scale</div>
+      </div>
       <button id="mapLocateBtn" class="map-locate-btn" type="button" title="Find fires near me" aria-label="Find fires near me">
         <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
           <circle cx="12" cy="12" r="3"></circle>
