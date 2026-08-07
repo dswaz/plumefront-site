@@ -1,0 +1,24 @@
+<!-- Small-size cut of the PlumeFront mark. Icon families simplify as they
+     shrink: the sky gradient, the far ridge's rim light and the subtler
+     stroke weights all turn to mush below ~24px, so this version flattens
+     the sky, drops the far rim, and thickens the near crest until it still
+     reads in a 16px browser tab. Same picture, fewer moving parts. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="PlumeFront">
+  <title>PlumeFront</title>
+  <defs>
+    <clipPath id="pfTileS"><rect width="64" height="64" rx="12"/></clipPath>
+    <radialGradient id="pfGlowS" cx=".5" cy=".74" r=".54">
+      <stop offset="0" stop-color="#ffe0aa"/>
+      <stop offset=".26" stop-color="#ffa348" stop-opacity=".9"/>
+      <stop offset=".66" stop-color="#ff6b2b" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#ff6b2b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g clip-path="url(#pfTileS)">
+    <rect width="64" height="64" fill="#161e40"/>
+    <rect width="64" height="64" fill="url(#pfGlowS)"/>
+    <path d="M0 40 L11 33 L19 36.5 L29 29 L39 34.5 L51 27 L64 32 L64 64 L0 64 Z" fill="#2b3059"/>
+    <path d="M0 49 L13 42 L23 46.5 L35 39 L47 47 L57 42.5 L64 45.5 L64 64 L0 64 Z" fill="#080b1c"/>
+    <path d="M0 49 L13 42 L23 46.5 L35 39 L47 47 L57 42.5 L64 45.5" fill="none" stroke="#ffa957" stroke-width="2.4" stroke-linejoin="round"/>
+  </g>
+</svg>
